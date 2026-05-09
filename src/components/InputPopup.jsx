@@ -83,12 +83,14 @@ export default function InputPopup({ x, y, onSubmit, onClose }) {
             border: "none",
             color: "rgba(180,195,255,0.55)",
             fontFamily: "'Outfit', sans-serif",
-            fontSize: 11,
+            fontSize: 13,
             letterSpacing: "0.12em",
             cursor: "pointer",
-            padding: "8px 0",
+            padding: "14px 16px",
             writingMode: "horizontal-tb",
             touchAction: "manipulation",
+            minHeight: 44,
+            minWidth: 80,
           }}
         >
           place ↵
@@ -102,11 +104,13 @@ export default function InputPopup({ x, y, onSubmit, onClose }) {
             border: "none",
             color: "rgba(180,195,255,0.22)",
             fontFamily: "'Outfit', sans-serif",
-            fontSize: 11,
+            fontSize: 13,
             cursor: "pointer",
-            padding: "8px 0",
+            padding: "14px 16px",
             writingMode: "horizontal-tb",
             touchAction: "manipulation",
+            minHeight: 44,
+            minWidth: 60,
           }}
         >
           esc

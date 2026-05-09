@@ -47,7 +47,7 @@ export default function Canvas({ objects, onAdd }) {
     y: sy - pan.y,
   }), [pan]);
 
-  // ── Mouse ────────────────────────────────────────────────────────────────────
+  // ── Mouse ──────────────────────────────────────────────────────────────────
 
   const onMouseDown = (e) => {
     if (e.button !== 0) return;
@@ -73,7 +73,7 @@ export default function Canvas({ objects, onAdd }) {
     }
   };
 
-  // ── Touch ────────────────────────────────────────────────────────────────────
+  // ── Touch ──────────────────────────────────────────────────────────────────
 
   const onTouchStart = (e) => {
     if (e.touches.length !== 1) return;
@@ -103,7 +103,7 @@ export default function Canvas({ objects, onAdd }) {
     }
   };
 
-  // ── Actions ──────────────────────────────────────────────────────────────────
+  // ── Actions ────────────────────────────────────────────────────────────────
 
   const handleAdd = (text) => {
     if (!popup) return;
@@ -144,10 +144,9 @@ export default function Canvas({ objects, onAdd }) {
 
   const copyCoords = () => navigator.clipboard?.writeText(`${centerX}, ${centerY}`);
 
-  // HUD stop — blocks canvas touch/pointer without preventDefault (so inputs still work)
-  const hudStop = (e) => e.stopPropagation();
+  const stopProp = (e) => { e.stopPropagation(); };
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -199,10 +198,8 @@ export default function Canvas({ objects, onAdd }) {
         <div
           style={{
             position: "absolute",
-            left: 0,
-            top: 0,
-            width: 0,
-            height: 0,
+            left: 0, top: 0,
+            width: 0, height: 0,
             transform: `translate(${pan.x}px, ${pan.y}px)`,
             transformOrigin: "0 0",
             willChange: "transform",
@@ -244,202 +241,225 @@ export default function Canvas({ objects, onAdd }) {
             fontSize: 15, fontWeight: 200, letterSpacing: "0.1em",
             writingMode: "horizontal-tb",
           }}>
-            click anywhere to leave a thought
+            tap anywhere to leave a thought
           </div>
         )}
       </div>
 
-      {/* ── HUD overlay — completely outside the canvas div so touch events are isolated ── */}
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 100,
-          pointerEvents: "none", // transparent by default; children opt-in
-          writingMode: "horizontal-tb",
-        }}
-      >
-        {/* ── COORDINATES HUD — bottom left ── */}
+      {/* ── HUD overlay — outside canvas so touches are fully isolated ── */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 100,
+        pointerEvents: "none",
+        writingMode: "horizontal-tb",
+      }}>
+
+        {/* Coordinates + go to — bottom left */}
         <div
-          onMouseDown={hudStop}
-          onMouseUp={hudStop}
-          onTouchStart={hudStop}
-          onTouchMove={hudStop}
-          onTouchEnd={hudStop}
-          onPointerDown={hudStop}
-          onPointerUp={hudStop}
+          onClick={stopProp}
           style={{
             position: "absolute",
-            bottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
-            left: "calc(28px + env(safe-area-inset-left, 0px))",
+            bottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
+            left: "calc(16px + env(safe-area-inset-left, 0px))",
             pointerEvents: "all",
             display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: 10,
+            alignItems: "center",
+            gap: 0,
           }}
         >
-          {/* Go To panel */}
-          {showGoto && (
-            <div
-              style={{
-                background: "rgba(7,8,15,0.92)",
-                border: "1px solid rgba(180,195,255,0.15)",
-                borderRadius: 6,
-                padding: "14px 16px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 10,
-                marginBottom: 4,
-              }}
-            >
-              <div style={{
-                color: "rgba(180,195,255,0.45)",
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase",
-              }}>
-                go to coordinates
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input
-                  type="number"
-                  placeholder="x"
-                  value={gotoInput.x}
-                  onChange={(e) => setGotoInput((p) => ({ ...p, x: e.target.value }))}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleGoto();
-                    if (e.key === "Escape") setShowGoto(false);
-                  }}
-                  style={{
-                    width: 80,
-                    background: "transparent", border: "none",
-                    borderBottom: "1px solid rgba(180,195,255,0.25)",
-                    color: "rgba(210,225,255,0.85)",
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 14, padding: "4px 2px", outline: "none",
-                    writingMode: "horizontal-tb",
-                    touchAction: "manipulation",
-                  }}
-                />
-                <input
-                  type="number"
-                  placeholder="y"
-                  value={gotoInput.y}
-                  onChange={(e) => setGotoInput((p) => ({ ...p, y: e.target.value }))}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleGoto();
-                    if (e.key === "Escape") setShowGoto(false);
-                  }}
-                  style={{
-                    width: 80,
-                    background: "transparent", border: "none",
-                    borderBottom: "1px solid rgba(180,195,255,0.25)",
-                    color: "rgba(210,225,255,0.85)",
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 14, padding: "4px 2px", outline: "none",
-                    writingMode: "horizontal-tb",
-                    touchAction: "manipulation",
-                  }}
-                />
-                <button
-                  onPointerUp={(e) => { e.stopPropagation(); handleGoto(); }}
-                  onClick={(e) => { e.stopPropagation(); handleGoto(); }}
-                  style={{
-                    background: "transparent", border: "none",
-                    color: "rgba(180,195,255,0.7)",
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 13, cursor: "pointer",
-                    padding: "0 6px", letterSpacing: "0.05em",
-                    touchAction: "manipulation",
-                  }}
-                >
-                  go ↗
-                </button>
-              </div>
-              {gotoError && (
-                <div style={{
-                  color: "rgba(255,160,160,0.6)",
-                  fontFamily: "'Outfit', sans-serif",
-                  fontSize: 11, letterSpacing: "0.08em",
-                }}>
-                  {gotoError}
-                </div>
-              )}
-            </div>
-          )}
+          <button
+            onClick={(e) => { e.stopPropagation(); copyCoords(); }}
+            style={{
+              background: "transparent", border: "none",
+              color: "rgba(180,195,255,0.45)",
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: 13, letterSpacing: "0.1em",
+              cursor: "copy", userSelect: "none",
+              padding: "14px 10px",
+              touchAction: "manipulation",
+              minHeight: 44,
+            }}
+          >
+            {centerX}, {centerY}
+          </button>
 
-          {/* Live coords + copy + goto toggle */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div
-              title="click to copy"
-              onPointerUp={(e) => { e.stopPropagation(); copyCoords(); }}
-              onClick={(e) => { e.stopPropagation(); copyCoords(); }}
-              style={{
-                color: "rgba(180,195,255,0.45)",
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: 13, letterSpacing: "0.1em",
-                cursor: "copy", transition: "color 0.2s", userSelect: "none",
-                touchAction: "manipulation",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = "rgba(180,195,255,0.75)"}
-              onMouseLeave={(e) => e.currentTarget.style.color = "rgba(180,195,255,0.45)"}
-            >
-              {centerX}, {centerY}
-            </div>
+          <div style={{ width: 1, height: 12, background: "rgba(180,195,255,0.15)", flexShrink: 0 }} />
 
-            <div style={{ width: 1, height: 12, background: "rgba(180,195,255,0.15)" }} />
-
-            <button
-              onPointerUp={(e) => { e.stopPropagation(); setShowGoto((v) => !v); setGotoError(""); }}
-              onClick={(e) => { e.stopPropagation(); setShowGoto((v) => !v); setGotoError(""); }}
-              style={{
-                background: "transparent", border: "none",
-                color: showGoto ? "rgba(180,195,255,0.75)" : "rgba(180,195,255,0.45)",
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: 13, letterSpacing: "0.1em",
-                cursor: "pointer", padding: 0, transition: "color 0.2s",
-                touchAction: "manipulation",
-              }}
-            >
-              go to
-            </button>
-          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowGoto((v) => !v); setGotoError(""); }}
+            style={{
+              background: "transparent", border: "none",
+              color: showGoto ? "rgba(180,195,255,0.8)" : "rgba(180,195,255,0.45)",
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: 13, letterSpacing: "0.1em",
+              cursor: "pointer",
+              padding: "14px 10px",
+              touchAction: "manipulation",
+              minHeight: 44,
+            }}
+          >
+            go to
+          </button>
         </div>
 
-        {/* ── Reset — bottom right ── */}
+        {/* Reset view — bottom right */}
         <div
-          onMouseDown={hudStop}
-          onMouseUp={hudStop}
-          onTouchStart={hudStop}
-          onTouchMove={hudStop}
-          onTouchEnd={hudStop}
-          onPointerDown={hudStop}
-          onPointerUp={hudStop}
+          onClick={stopProp}
           style={{
             position: "absolute",
-            bottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
-            right: "calc(28px + env(safe-area-inset-right, 0px))",
+            bottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
+            right: "calc(16px + env(safe-area-inset-right, 0px))",
             pointerEvents: "all",
           }}
         >
           <button
-            onPointerUp={(e) => { e.stopPropagation(); resetView(); }}
             onClick={(e) => { e.stopPropagation(); resetView(); }}
             style={{
               background: "transparent",
               border: "1px solid rgba(180,195,255,0.18)",
-              borderRadius: 3,
+              borderRadius: 4,
               color: "rgba(180,195,255,0.45)",
               fontFamily: "'Outfit', sans-serif",
               fontSize: 13, letterSpacing: "0.1em",
-              padding: "6px 16px", cursor: "pointer",
+              padding: "10px 18px",
+              cursor: "pointer",
               touchAction: "manipulation",
+              minHeight: 44,
             }}
           >
             reset view
           </button>
         </div>
       </div>
+
+      {/* ── Go To modal — centered, above everything ── */}
+      {showGoto && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowGoto(false); setGotoError(""); } }}
+          style={{
+            position: "fixed", inset: 0, zIndex: 200,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(0,0,0,0.5)",
+            writingMode: "horizontal-tb",
+            touchAction: "manipulation",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "rgba(10,11,22,0.98)",
+              border: "1px solid rgba(180,195,255,0.18)",
+              borderRadius: 12,
+              padding: "28px 24px 22px",
+              display: "flex", flexDirection: "column", gap: 14,
+              width: "min(320px, calc(100vw - 48px))",
+            }}
+          >
+            <div style={{
+              color: "rgba(180,195,255,0.5)",
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: 11, letterSpacing: "0.25em", textTransform: "uppercase",
+            }}>
+              go to coordinates
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <input
+                type="number"
+                inputMode="numeric"
+                placeholder="x"
+                value={gotoInput.x}
+                onChange={(e) => setGotoInput((p) => ({ ...p, x: e.target.value }))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleGoto();
+                  if (e.key === "Escape") { setShowGoto(false); setGotoError(""); }
+                }}
+                style={{
+                  width: "100%", boxSizing: "border-box",
+                  background: "rgba(180,195,255,0.06)",
+                  border: "1px solid rgba(180,195,255,0.15)",
+                  borderRadius: 6,
+                  color: "rgba(210,225,255,0.9)",
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 16, padding: "13px 14px",
+                  outline: "none",
+                  touchAction: "manipulation",
+                }}
+              />
+              <input
+                type="number"
+                inputMode="numeric"
+                placeholder="y"
+                value={gotoInput.y}
+                onChange={(e) => setGotoInput((p) => ({ ...p, y: e.target.value }))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleGoto();
+                  if (e.key === "Escape") { setShowGoto(false); setGotoError(""); }
+                }}
+                style={{
+                  width: "100%", boxSizing: "border-box",
+                  background: "rgba(180,195,255,0.06)",
+                  border: "1px solid rgba(180,195,255,0.15)",
+                  borderRadius: 6,
+                  color: "rgba(210,225,255,0.9)",
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 16, padding: "13px 14px",
+                  outline: "none",
+                  touchAction: "manipulation",
+                }}
+              />
+            </div>
+
+            {gotoError && (
+              <div style={{
+                color: "rgba(255,150,150,0.7)",
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: 12, letterSpacing: "0.05em",
+              }}>
+                {gotoError}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleGoto(); }}
+                style={{
+                  flex: 1,
+                  background: "rgba(180,195,255,0.1)",
+                  border: "1px solid rgba(180,195,255,0.2)",
+                  borderRadius: 6,
+                  color: "rgba(210,225,255,0.85)",
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 14, letterSpacing: "0.08em",
+                  padding: "14px 0",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  minHeight: 48,
+                }}
+              >
+                go ↗
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowGoto(false); setGotoError(""); }}
+                style={{
+                  flex: 1,
+                  background: "transparent",
+                  border: "1px solid rgba(180,195,255,0.1)",
+                  borderRadius: 6,
+                  color: "rgba(180,195,255,0.35)",
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 14,
+                  padding: "14px 0",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  minHeight: 48,
+                }}
+              >
+                cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
