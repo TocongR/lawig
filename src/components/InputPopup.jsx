@@ -43,7 +43,6 @@ export default function InputPopup({ x, y, onSubmit, onClose }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); }
           if (e.key === "Escape") onClose();
         }}
         placeholder="a thought..."
